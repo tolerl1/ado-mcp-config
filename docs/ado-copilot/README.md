@@ -54,7 +54,7 @@ VS Code chat has two agent harnesses. The **Local** harness reads the VS Code fi
 
 ## Check first (unverified)
 
-- Whether the child-creation action (`wit_work_item_write` with `action: add_child`) can set Acceptance Criteria and Assigned To. The rules include a fallback: update the item afterward, or create it and link it.
+- Whether the child-creation action (`wit_work_item_write` with `action: add_child`) can set Acceptance Criteria. The rules include a fallback: update the item afterward, or create it and link it.
 - Whether new items leave Iteration Path unset.
 - Whether Copilot CLI's Entra sign-in works smoothly with the remote server. Microsoft lists the CLI as supported, but this hasn't been tested here.
 - Whether VS Code attaches an `applyTo: "**"` file in a chat that touches no files. If not, attach it manually via **Add Context > Instructions**.

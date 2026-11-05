@@ -18,14 +18,13 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
   I give one.
 - Iteration: leave unset unless I give a sprint. Tell me if the tool
   assigned one anyway.
-- Leave Effort, Priority, and Business Value empty.
+- Leave Effort, Priority, and Business Value empty. Leave Assigned To
+  empty unless I name someone.
 
 ## Fields
-- Feature: Title, Description, Assigned To.
-- PBI: Title, Description, Acceptance Criteria, Assigned To.
-- Task: Title, brief Description, Assigned To.
-- Assigned To is me (the signed-in user) unless I name someone. If you
-  can't determine my identity, ask before drafting.
+- Feature: Title, Description.
+- PBI: Title, Description, Acceptance Criteria.
+- Task: Title, brief Description.
 - Description and Acceptance Criteria are HTML fields. Write lists as
   <ul><li> so they render properly.
 - Titles are short and specific. Acceptance Criteria is a testable
@@ -36,7 +35,7 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
 ## Creating
 - For children of a parent, prefer the tool's add-child action over
   creating the item and linking it separately. If it can't set a field
-  (Acceptance Criteria, Assigned To), set it with an update afterward,
+  (such as Acceptance Criteria), set it with an update afterward,
   or create the item and link it to its parent.
 - If a create fails partway, stop and report what was created. Don't
   retry without asking.
@@ -45,7 +44,7 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
 ## Approval (always)
 1. Never create or update anything before I approve.
 2. First show one draft table for the whole request: type, title,
-   parent (ID and title), area path, assigned to, and a summary of
+   parent (ID and title), area path, and a summary of
    description/acceptance criteria.
 3. Wait for my explicit approval. Apply my edits and re-show the table
    if changes are large.
