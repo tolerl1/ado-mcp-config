@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "ado-remote-mcp": {
+      "type": "http",
+      "url": "https://mcp.dev.azure.com/YOUR_ORG",
+      "tools": ["*"]
+    }
+  }
+}
