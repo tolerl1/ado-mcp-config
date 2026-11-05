@@ -34,15 +34,19 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
   e.g. "Assign permissions", "Update section 2 of the user guide".
 
 ## Creating
-- Prefer the child-creation tool for children of a parent. If it can't
-  set a field (Acceptance Criteria, Assigned To), set it with an update
-  afterward, or create the item and link it to its parent.
+- For children of a parent, prefer the tool's add-child action over
+  creating the item and linking it separately. If it can't set a field
+  (Acceptance Criteria, Assigned To), set it with an update afterward,
+  or create the item and link it to its parent.
+- If a create fails partway, stop and report what was created. Don't
+  retry without asking.
 - After creating, verify each item's parent and fields.
 
 ## Approval (always)
 1. Never create or update anything before I approve.
-2. First show a draft table: type, title, parent (ID and title), area
-   path, assigned to, and a summary of description/acceptance criteria.
+2. First show one draft table for the whole request: type, title,
+   parent (ID and title), area path, assigned to, and a summary of
+   description/acceptance criteria.
 3. Wait for my explicit approval. Apply my edits and re-show the table
    if changes are large.
 4. After creating, list each item's ID, title, link, and parent.
