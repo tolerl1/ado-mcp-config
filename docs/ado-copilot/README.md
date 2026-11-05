@@ -6,20 +6,14 @@ Replace `YOUR_ORG` with your Azure DevOps organization name.
 
 ## Files
 
-| File | For |
+| File | Goes to |
 |---|---|
-| `ado-work-items.instructions.md` | VS Code user instructions (rules with frontmatter) |
-| `vscode-user-mcp.json` | VS Code user MCP config (root key `servers`) |
-| `copilot-instructions.md` | Copilot CLI instructions (same rules, no frontmatter) |
-| `copilot-cli-mcp-config.json` | Copilot CLI MCP config (root key `mcpServers`) |
-| `install.ps1` / `install.sh` | Windows / macOS and Linux installer |
+| `vscode-user-mcp.json` | Merge into VS Code's user `mcp.json` (root key `servers`) |
+| `ado-work-items.instructions.md` | Paste into a new VS Code **User** instructions file |
+| `copilot-cli-mcp-config.json` | Merge into `~/.copilot/mcp-config.json` (root key `mcpServers`) |
+| `copilot-instructions.md` | Copy to `~/.copilot/copilot-instructions.md` |
 
-The installers ask for your org name, copy `copilot-instructions.md` to `~/.copilot/` (backing up any existing file as `.bak`), and print the MCP snippets, their target paths, and the manual VS Code step. They never write MCP config files.
-
-```sh
-./install.sh                                          # macOS/Linux
-powershell -ExecutionPolicy Bypass -File .\install.ps1  # Windows
-```
+In `~/.copilot/`, `~` is your home folder (`%USERPROFILE%` on Windows). Merge the MCP files into any existing config instead of overwriting it, and back up an existing `copilot-instructions.md` before replacing it.
 
 ## User-level setup (applies to all projects)
 
