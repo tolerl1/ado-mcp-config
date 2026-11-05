@@ -34,13 +34,22 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
   e.g. "Assign permissions", "Update section 2 of the user guide".
 
 ## Creating
-- For children of a parent, prefer the tool's add-child action over
-  creating the item and linking it separately. If it can't set a field
-  (such as Acceptance Criteria), set it with an update afterward,
-  or create the item and link it to its parent.
+- Use `wit_work_item_write` with `action: add_child` to create items
+  under a parent. It sets the parent link, Title, Description, Area
+  Path, and Iteration Path, and nothing else. Pass `format: "Html"`
+  with HTML content (the tool defaults to Markdown). Create up to 50
+  children per call.
+- `add_child` cannot set Acceptance Criteria. After creating PBIs,
+  set `Microsoft.VSTS.Common.AcceptanceCriteria` with `update_batch`
+  (or `update`), as HTML.
 - If a create fails partway, stop and report what was created. Don't
   retry without asking.
 - After creating, verify each item's parent and fields.
+- Before creating an item that has no `ado-id`, read the parent's
+  existing child items. If one has the same title, don't create a
+  duplicate: tell me and ask whether to reuse its ID. This covers a
+  run that stopped after creating an item but before its ID was
+  written to the file.
 
 ## Drafting from a spec (step 1)
 - When I give you a spec, planning notes, or a meeting transcript and
@@ -55,9 +64,14 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
   - One `## PBI: <title>` section per PBI, each followed by an empty
     `<!-- ado-id: -->` line, then **Description**, **Acceptance
     criteria** (bullets), and `### Tasks` (one bullet per task:
-    `Title: brief description <!-- ado-id: -->`).
+    `Title: brief description <!-- ado-id: -->`). Split a task bullet
+    on the first `: ` only: everything before it is the Title and
+    everything after (up to the comment) is the Description. A bullet
+    with no `: ` is a Title with no Description.
   - When the parent is an Epic, use `## Feature: <title>` sections with
     `### PBI:` sections inside and `#### Tasks` under each PBI.
+  - When the parent is a PBI, use `## Task: <title>` sections, each
+    followed by an `<!-- ado-id: -->` line and a brief description.
   - End with `## Open questions`.
 - Leave frontmatter values blank if I haven't given them; don't guess
   IDs or project names.
@@ -81,7 +95,7 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
   and wait for my approval. If I ask for changes, edit the file first,
   then re-show the table, so the file stays the source of truth.
 - Convert markdown bullets to `<ul><li>` HTML for Description and
-  Acceptance Criteria.
+  Acceptance Criteria. Parse task bullets as described in step 1.
 - After each item is created, write its ID into that item's
   `<!-- ado-id: -->` comment right away, so a partial run can be
   resumed without duplicates.

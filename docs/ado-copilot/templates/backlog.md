@@ -1,21 +1,22 @@
 ---
 project: YOUR_PROJECT
-parent: 1234          # Feature ID for PBIs, or Epic ID for Features
+parent: 1234          # Feature ID (PBIs are created under it)
 area:                 # optional; blank = copy the parent's Area Path
 iteration:            # optional; blank = leave unset
 source: specs/your-spec.md
 ---
 
 <!--
-Backlog draft. Copilot writes this file from a spec or planning notes
-(step 1), you edit it, then Copilot creates the items from it (step 2).
+Backlog draft: PBIs (with Tasks) under one Feature.
+Step 1: Copilot writes this from a spec. You edit it.
+Step 2: Copilot creates the items from it.
 
-- Each "## PBI:" section is a child of `parent`.
-- When `parent` is an Epic, use "## Feature:" sections instead, with
-  "### PBI:" sections inside them and "#### Tasks" under each PBI.
 - Leave `ado-id` blank. Copilot fills it in after creating the item and
-  skips items that already have an ID, so a re-run won't duplicate them.
-- Plain bullets are fine; Copilot converts them to HTML lists in ADO.
+  skips items that already have an ID.
+- Task bullets are "Title: description". Only the first ": " splits them.
+- Plain bullets are fine; Copilot converts them to HTML in ADO.
+- For Features under an Epic, see feature.md. For Tasks under an
+  existing PBI, see task.md.
 -->
 
 ## PBI: Add SSO sign-in option
