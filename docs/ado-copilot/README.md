@@ -1,55 +1,64 @@
 # Azure DevOps work item rules for GitHub Copilot
 
-User-level setup so GitHub Copilot (CLI and VS Code) creates Azure DevOps Features, PBIs, and Tasks the same way, through the remote Azure DevOps MCP server.
+User-level setup so GitHub Copilot (VS Code and CLI) creates Azure DevOps Features, PBIs, and Tasks the same way, through the remote Azure DevOps MCP server.
 
-Replace `YOUR_ORG` with your Azure DevOps organization name in the MCP files before installing them.
+Replace `YOUR_ORG` with your Azure DevOps organization name.
 
 ## Files
 
-| File | What it is | Install to (user level) |
-|---|---|---|
-| `copilot-instructions.md` | The rules, no frontmatter | `~/.copilot/copilot-instructions.md` |
-| `mcp-config.json` | ADO MCP server, portable Copilot format (`mcpServers`) | `~/.copilot/mcp-config.json` |
-| `ado-work-items.instructions.md` | Same rules with frontmatter (`applyTo: "**"`) | VS Code user profile (Local harness only, see below) |
-| `vscode-mcp.json` | ADO MCP server, VS Code format (`servers`) | VS Code user `mcp.json` (Local harness only) |
+| File | For |
+|---|---|
+| `ado-work-items.instructions.md` | VS Code user instructions (rules with frontmatter) |
+| `vscode-user-mcp.json` | VS Code user MCP config (root key `servers`) |
+| `copilot-instructions.md` | Copilot CLI instructions (same rules, no frontmatter) |
+| `copilot-cli-mcp-config.json` | Copilot CLI MCP config (root key `mcpServers`) |
+| `install.ps1` / `install.sh` | Windows / macOS and Linux installer |
 
-`~` is your home folder (`%USERPROFILE%` on Windows). If `COPILOT_HOME` is set, use that folder instead of `~/.copilot`.
+The installers ask for your org name, copy `copilot-instructions.md` to `~/.copilot/` (backing up any existing file as `.bak`), and print the MCP snippets, their target paths, and the manual VS Code step. They never write MCP config files.
 
-Copilot CLI reads `~/.copilot/` directly. VS Code reads the same `~/.copilot/` files when the chat uses the **Copilot** agent harness. Install those two files once and both clients use them.
+```sh
+./install.sh                                          # macOS/Linux
+powershell -ExecutionPolicy Bypass -File .\install.ps1  # Windows
+```
 
-## Setup
+## User-level setup (applies to all projects)
 
-1. **Sign in** with your work Entra account. The Azure DevOps org must be Entra-backed.
-2. **MCP server.** Copy `mcp-config.json` to `~/.copilot/mcp-config.json`. If that file already exists, merge the `ado-remote-mcp` entry into its `mcpServers` object instead of overwriting it. Alternatively, run:
-   ```sh
-   copilot mcp add --transport http ado-remote-mcp https://mcp.dev.azure.com/YOUR_ORG
-   ```
-   That command writes the same entry. The CLI does not read `.vscode/mcp.json`.
-3. **Instructions.** Copy `copilot-instructions.md` to `~/.copilot/copilot-instructions.md`. If you already have one, append these rules to it.
-   - macOS/Linux: `mkdir -p ~/.copilot && cp copilot-instructions.md ~/.copilot/`
-   - Windows (PowerShell): `New-Item -ItemType Directory -Force $HOME\.copilot; Copy-Item copilot-instructions.md $HOME\.copilot\`
-4. **Confirm in the CLI.** Run `/instructions` to check the file is listed and enabled, and `/mcp` to check `ado-remote-mcp`. Two GitHub issues report this file not loading in some CLI versions.
-5. **Confirm in VS Code.** Pick the **Copilot** harness in the chat view, run **Chat: Open Customizations**, and check that the instructions file appears under **Instructions** and `ado-remote-mcp` under **MCP Servers**.
+**VS Code**
+- **MCP:** run **MCP: Open User Configuration** and merge `vscode-user-mcp.json` into it (root key is `servers`). Default paths, if not using a custom profile:
+  - Windows: `%APPDATA%\Code\User\mcp.json`
+  - macOS: `~/Library/Application Support/Code/User/mcp.json`
+  - Linux: `~/.config/Code/User/mcp.json`
+- **Instructions:** run **Chat: New Instructions File**, choose **User**, and paste `ado-work-items.instructions.md`.
 
-### VS Code with the Local harness (or older VS Code)
+**Copilot CLI**
+- **MCP:** either run
+  ```sh
+  copilot mcp add --transport http ado-remote-mcp https://mcp.dev.azure.com/YOUR_ORG
+  ```
+  or merge `copilot-cli-mcp-config.json` into `~/.copilot/mcp-config.json` (root key is `mcpServers`). The CLI does not read `.vscode/mcp.json`.
+- **Instructions:** copy `copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
 
-The Local harness does not read `~/.copilot/`. Use the VS Code-format files instead:
+**First use:** sign in with your work Entra account when prompted. The Azure DevOps org must be Entra-backed.
 
-- **MCP:** run **MCP: Open User Configuration** and merge in the contents of `vscode-mcp.json`.
-- **Instructions:** run **Chat: Open Customizations** > **Instructions**, select **+** next to **User**, and paste the contents of `ado-work-items.instructions.md`. On older builds, use **Chat: New Instructions File** and choose **User**.
+## How to use it
 
-## Test
+- There is no slash command or trigger word. The rules load automatically as instructions. Start an agent-mode chat in VS Code (**Chat > Agent**), or a CLI session, and ask in plain language, e.g.:
+  > In project X, create 3 PBIs under Feature 1234 for &lt;topic&gt;, with tasks for each.
+- Name the project and parent Feature ID in each prompt. The agent copies the Area Path from the parent Feature and leaves Iteration unset unless you give a sprint.
+- The agent shows a draft table first. Reply "approved" (or request edits). Nothing is written until you approve.
+- To find your team name, ask: "List the teams in project X."
+- To create a Feature, give the parent Epic ID.
+- VS Code will also ask you to confirm each MCP tool call. Don't set "always allow" on create/update tools until you trust the output.
 
-In each client:
+## Verify it works
 
-1. Ask: "What ADO rules are you following?"
-2. Ask it to draft one PBI with two Tasks under a test Feature. **Do not approve it.** Check that it shows the draft table and waits.
+- **VS Code:** open Chat in Agent mode, click **Select Tools**, and confirm `ado-remote-mcp` is listed. Ask "What ADO rules are you following?"
+- **CLI:** run `/mcp` to list servers and `/instructions` to confirm the instructions loaded. Two GitHub issues report `copilot-instructions.md` not loading in some CLI versions.
+- Then run the test: draft one PBI with two Tasks under a test Feature and **do not approve it**.
 
-## Check first
-
-These are unverified:
+## Check first (unverified)
 
 - Whether `wit_add_child_work_items` can set Acceptance Criteria and Assigned To. The rules include a fallback (update afterward, or create and link).
 - Whether new items leave Iteration Path unset.
 - Whether the CLI's Entra sign-in works smoothly with the remote server.
-- Whether the `applyTo: "**"` file attaches in a chat that touches no files. The docs say `applyTo` matches files the agent works with, which is why the main setup uses `copilot-instructions.md`. If it doesn't attach, attach it manually via **Add Context > Instructions**.
+- Whether VS Code attaches an `applyTo: "**"` file in a chat that touches no files. If not, attach it manually via **Add Context > Instructions**.
