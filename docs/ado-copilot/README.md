@@ -75,7 +75,7 @@ Instead of describing items in chat, you can have Copilot draft a backlog file f
 
 The file stays the record of what was created. If a run stops partway, run step 3 again: items that already have an ID are skipped. If you ask for changes at the approval step, Copilot edits the file first. The file is also still usable for manual copy-paste.
 
-Commit the backlog files next to the spec if you want a history; otherwise keep them anywhere in the workspace.
+Backlog files are working drafts in the project you run Copilot in, not part of this repo. You don't need to commit them. Keep them anywhere in that workspace, or delete them once the items exist in Azure DevOps.
 
 ## Verify it works
 
