@@ -4,7 +4,17 @@ User-level files that let GitHub Copilot create Azure DevOps Features, PBIs, and
 
 ## User-level setup (applies to all projects)
 
-First, in the two MCP files, replace `YOUR_ORG` with your Azure DevOps organization name (the `<org>` in `https://dev.azure.com/<org>`).
+### Quick install (PowerShell)
+
+```powershell
+.\install.ps1 -Org <org>
+```
+
+`<org>` is your Azure DevOps organization name (the `<org>` in `https://dev.azure.com/<org>`). The script does everything in the manual steps below: it fills in the org name, merges into existing MCP files (backing them up as `*.bak`), adds the rules to `copilot-instructions.md` inside marked lines (re-running replaces just that block), and copies the VS Code instructions and prompt files. Use `-SkipCLI` or `-SkipVSCode` to do one side only. It puts the VS Code instructions and prompt files in a `prompts` folder under the VS Code user folder. I could not confirm that path in the VS Code docs, so after installing, check that the files show up (**Chat: Configure Prompt Files**). If not, pass the right folder with `-VSCodePromptsDir`. I haven't run the script on Windows.
+
+### Manual setup
+
+First, in the two MCP files, replace `YOUR_ORG` with your Azure DevOps organization name.
 
 | File in this folder | Copy to |
 |---|---|
@@ -35,7 +45,7 @@ First, in the two MCP files, replace `YOUR_ORG` with your Azure DevOps organizat
 - **Instructions:** run **Chat: New Instructions File**, choose **User**, and paste in `vscode/ado-work-items.instructions.md`.
 - **Prompt files (optional):** for each file in `vscode/prompts/`, run **Chat: New Prompt File**, choose **User**, name it the same (`draft-backlog`, `create-backlog`), and paste in the contents. They show up in chat as `/draft-backlog` and `/create-backlog`.
 
-VS Code chat has two agent harnesses. The **Local** harness reads the VS Code files above. The **Copilot** harness reads the `~/.copilot/` files. Set up the four required files and either one works.
+VS Code chat has two agent harnesses. The **Local** harness reads the VS Code files above. The **Copilot** harness reads the `~/.copilot/` files. Set up the four required files and either one works. Prompt files (`/draft-backlog`, `/create-backlog`) work only in the Local harness; in the Copilot harness use plain-language prompts.
 
 **First use:** sign in with your work Microsoft Entra account when prompted. The Azure DevOps organization must be backed by Entra; personal Microsoft account organizations aren't supported by the remote server. Don't also run the local Azure DevOps MCP server.
 
@@ -51,7 +61,7 @@ VS Code chat has two agent harnesses. The **Local** harness reads the VS Code fi
 
 ## Two-step flow: spec to backlog file to ADO
 
-Instead of describing items in chat, you can have Copilot draft a backlog file first, edit it, and then create everything from that file. `backlog-template.md` shows the format.
+Instead of describing items in chat, you can have Copilot draft a backlog file first, edit it, and then create everything from that file. The files in `templates/` show the format: `backlog.md` (PBIs and Tasks under a Feature), `feature.md` (Features under an Epic), and `task.md` (Tasks under an existing PBI).
 
 1. **Draft.** Attach the spec or planning notes and ask for a backlog. In VS Code: `/draft-backlog` with the spec attached (**Add Context**, or `#file:specs/login-redesign.md`). In the CLI, or without the prompt files:
    > Draft a backlog from specs/login-redesign.md for project X under Feature 1234.
@@ -74,11 +84,19 @@ Commit the backlog files next to the spec if you want a history; otherwise keep 
 - Then run the test: draft one PBI with two Tasks under a test Feature and **do not approve it**. Check that it shows the draft table and waits.
 - **Two-step flow:** ask for a backlog draft from a short spec. Check that it writes the file and makes no MCP calls. Then run the create step against a test Feature, approve, and check that the IDs are written back. Run the create step again and check that everything is skipped.
 
-## Check first (unverified)
+## What was checked against the docs
 
-- Whether the child-creation action (`wit_work_item_write` with `action: add_child`) can set Acceptance Criteria. The rules include a fallback: update the item afterward, or create it and link it.
-- Whether new items leave Iteration Path unset.
-- Whether Copilot CLI's Entra sign-in works smoothly with the remote server. Microsoft lists the CLI as supported, but this hasn't been tested here.
-- Whether VS Code attaches an `applyTo: "**"` file in a chat that touches no files. If not, attach it manually via **Add Context > Instructions**.
-- Prompt file frontmatter: the files use `agent: agent`. Older VS Code versions used `mode: agent` instead; change it if the prompt doesn't run in agent mode.
-- Whether Copilot CLI has an equivalent of VS Code prompt files. The two-step flow works in the CLI with plain-language prompts either way, because the rules are in `copilot-instructions.md`.
+Checked against Microsoft and VS Code documentation and the open-source Azure DevOps MCP server code (the remote server is described as a hosted version of it, but the remote tool list may differ slightly, so confirm with the test below):
+
+- **Acceptance Criteria with `add_child`: not supported.** `add_child` sets only Title, Description, Area Path, Iteration Path, and the parent link. Its Description format defaults to Markdown. The rules now create PBIs with `add_child` (passing HTML), then set Acceptance Criteria with `update_batch`.
+- **Iteration:** `add_child` sets Iteration Path only if one is passed. What Azure DevOps assigns when it's omitted isn't documented, so the rules keep the "tell me if one was assigned" check.
+- **Remote server and clients:** The remote server needs a Microsoft Entra-backed organization, and Microsoft lists VS Code with GitHub Copilot and GitHub Copilot CLI as supported ([setup](https://learn.microsoft.com/azure/devops/mcp-server/remote-mcp-server)). Don't run the local server alongside it.
+- **Prompt file frontmatter:** the current VS Code docs use `agent:` (`mode:` was the April 2025 name).
+- **CLI files:** `~/.copilot/copilot-instructions.md` and `~/.copilot/mcp-config.json` are documented user-level locations. Edits to instructions apply only to new or resumed sessions.
+
+## Still unverified
+
+- Whether `applyTo: "**"` attaches in a VS Code chat with no files in context. The docs don't say. If not, attach it via **Add Context > Instructions**.
+- The location of the VS Code User `prompts` folder (see Quick install).
+- Whether the remote server's `add_child` matches the open-source schema above.
+- Whether Copilot CLI's Entra sign-in works smoothly with the remote server (listed as supported, not tested here).
