@@ -1,7 +1,8 @@
 # Azure DevOps work item rules
 
-Applies whenever I ask you to create or change Azure DevOps work items
-with the Azure DevOps MCP server.
+Applies whenever I ask you to draft a backlog from a spec or planning
+notes, or to create or change Azure DevOps work items with the Azure
+DevOps MCP server.
 
 ## Hierarchy
 Epic > Feature > Product Backlog Item (PBI) > Task.
@@ -40,6 +41,50 @@ Epic > Feature > Product Backlog Item (PBI) > Task.
 - If a create fails partway, stop and report what was created. Don't
   retry without asking.
 - After creating, verify each item's parent and fields.
+
+## Drafting from a spec (step 1)
+- When I give you a spec, planning notes, or a meeting transcript and
+  ask for a backlog, write a markdown backlog file. Don't call any
+  Azure DevOps tools in this step, not even reads, unless I ask.
+- Save it as `backlog/<short-name>.md` unless I name a path. Never
+  overwrite an existing file without asking.
+- Use this format:
+  - Frontmatter: `project`, `parent` (Feature ID for PBIs, Epic ID for
+    Features), optional `area` and `iteration`, and `source` (the spec
+    path or a short note on where the content came from).
+  - One `## PBI: <title>` section per PBI, each followed by an empty
+    `<!-- ado-id: -->` line, then **Description**, **Acceptance
+    criteria** (bullets), and `### Tasks` (one bullet per task:
+    `Title: brief description <!-- ado-id: -->`).
+  - When the parent is an Epic, use `## Feature: <title>` sections with
+    `### PBI:` sections inside and `#### Tasks` under each PBI.
+  - End with `## Open questions`.
+- Leave frontmatter values blank if I haven't given them; don't guess
+  IDs or project names.
+- Stay close to the spec's wording. Don't invent scope. Put anything
+  unclear or missing under Open questions instead of guessing.
+- Apply the Fields rules above to titles, acceptance criteria, and
+  tasks. Write plain markdown bullets here; convert them to HTML only
+  when creating.
+- When done, give the file path, a count of items by type, and the
+  open questions.
+
+## Creating from a backlog file (step 2)
+- When I ask to create the items in a backlog file, read the file and
+  use its frontmatter for project, parent, area, and iteration. If
+  `project` or `parent` is blank, ask.
+- Skip any item that already has an `ado-id` and say which ones you
+  skipped. Don't update existing items unless I ask.
+- If the Open questions section still has items, list them and ask
+  whether to continue.
+- Follow the Approval rules: show the draft table built from the file
+  and wait for my approval. If I ask for changes, edit the file first,
+  then re-show the table, so the file stays the source of truth.
+- Convert markdown bullets to `<ul><li>` HTML for Description and
+  Acceptance Criteria.
+- After each item is created, write its ID into that item's
+  `<!-- ado-id: -->` comment right away, so a partial run can be
+  resumed without duplicates.
 
 ## Approval (always)
 1. Never create or update anything before I approve.
